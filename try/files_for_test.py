@@ -8,7 +8,6 @@ We also allow for python scripts which have no extension
 """
 
 
-from __future__ import print_function
 import os
 import re
 import sys
@@ -25,6 +24,8 @@ class UserMessage(Exception):
     """Tell the user something went wrong"""
     pass
 
+class MissingFiles(UserMessage):
+    pass
 
 def first_thing_that(things, predicate):
     for thing in things:
@@ -45,9 +46,9 @@ def _get_path_to_test_directory(strings):
         try:
             result = first_thing_that(paths, lambda p: p.parent and p.isfile()).parent
         except AttributeError:
-            raise UserMessage('No doctests found in %r' % strings)
+            raise MissingFiles('No doctests found in %r' % strings)
     if not result.files('*.test*') and not result.files('*.py'):
-        raise UserMessage('No doctests found in %r' % strings)
+        raise MissingFiles('No doctests found in %r' % strings)
     return result
 
 
@@ -75,7 +76,7 @@ def _existing_test_files(path_to_stem):
     else:
         if path_to_stem.parent:
             dirr = path_to_stem.parent
-        glob = '%s.*' % path_to_stem.namebase
+        glob = f'{path_to_stem.namebase}.*'
     if not dirr.isdir():
         return []
     return [f for f in dirr.files(glob)]
@@ -99,16 +100,18 @@ def _get_path_stems(strings, recursive):
         return paths
     return add_sub_dirs(paths)
 
+# directory patterns to avoid for recursion:
+_norecursedirs = (
+    '.*', '*.egg-info', 'build', 'coverage', 'htmlcov', 'dist',
+    'venv', '__pycache__')
 
 def add_sub_dirs(paths):
     """Add all sub-directories for the directories of the paths"""
     dirs = {p.directory() for p in paths}
     result = dirs.copy()
     for path_to_dir in dirs:
-        for sub_dir in path_to_dir.walkdirs():
-            import pudb
-            pudb.set_trace()
-            if sub_dir.in_git_repo():
+        for sub_dir in path_to_dir.walkdirs(ignores=_norecursedirs):
+            if sub_dir.has_vcs_dir():
                 continue
             result.add(sub_dir)
     return result
@@ -144,12 +147,12 @@ def is_python_doctest_extension(string):
     return string in python_doctest_extensions()
 
 
-def is_possible_test_extension(string):
+def _is_possible_test_extension(string):
     """Whether the string is a possible test extension"""
     return string in possible_test_extensions()
 
 
-def is_positive_test_extension(string):
+def _is_positive_test_extension(string):
     """Whether the string is a positive test extension"""
     return string in positive_test_extensions()
 
@@ -170,19 +173,19 @@ def has_python_doctest_extension(string):
     return _has_checked_extension(string, is_python_doctest_extension)
 
 
-def has_possible_test_extension(string):
+def _has_possible_test_extension(string):
     """Whether the string has a possible test extension"""
-    return _has_checked_extension(string, is_possible_test_extension)
+    return _has_checked_extension(string, _is_possible_test_extension)
 
 
-def has_positive_test_extension(string):
+def _has_positive_test_extension(string):
     """Whether the string has a possible test extension"""
-    return _has_checked_extension(string, is_positive_test_extension)
+    return _has_checked_extension(string, _is_positive_test_extension)
 
 
 def _positive_test_globs():
     """A glob for each of the _positive test extensions"""
-    return [str('*%s' % ext) for ext in positive_test_extensions()]
+    return [f'*{ext}' for ext in positive_test_extensions()]
 
 
 def has_doctests(string):
@@ -195,44 +198,40 @@ def has_doctests(string):
     >>> has_doctests('not space    >>> print True')
     False
     """
-    doctest_regexp = re.compile('^\s*>>>\s', re.MULTILINE)
+    doctest_regexp = re.compile(r'^\s*>>>\s', re.MULTILINE)
     return bool(doctest_regexp.search(string))
 
 
-def all_possible_test_files_in(path_to_root, recursive):
-    """A list of all possibel test files in the given root
+def _all_possible_test_files_in(path_to_root, recursive):
+    """A list of all possible test files in the given root
 
     If recursive is True then include sub-directories
     """
-    find_files = recursive and path_to_root.walkfiles or path_to_root.files
+    find_files = recursive and path_to_root.walkfiles or path_to_root.listfiles
     result = []
+    ignore_files = list(_norecursedirs + ('*.sw[op]',))
     for glob in _positive_test_globs():
-        result.extend(find_files(glob))
-    for path_to_file in find_files():
-        if '.git' in path_to_file or path_to_file.basename()[0] == '.':
-            continue
-        if path_to_file.ext in ('.swp', '.swo'):
+        files = find_files(glob, ignores=ignore_files)
+        result.extend(files)
+    ignore_files.extend(_positive_test_globs())
+    for path_to_file in find_files(ignores=ignore_files):
+        if path_to_file.hidden:
             continue
         try:
-            if not path_to_file.ext and _first_line_is_python_shebang(path_to_file.lines()):
+            if not path_to_file.ext and _first_line_is_python_shebang(path_to_file.stripped_lines()):
                 result.append(path_to_file)
         except UnicodeDecodeError as e:
-            raise ValueError('%s - %s' % (path_to_file, repr(e)))
+            raise ValueError(f'{path_to_file} - {e!r}')
     return result
 
 
 def _get_scripts_here(recursive):
     """Find all test scripts in the current working directory"""
     here = path('.')
-    result = []
-    for python_file in all_possible_test_files_in(here, recursive):
-        if has_python_source_extension(python_file):
-            text = python_file.text()
-            if has_doctests(text):
-                result.append(python_file)
-        else:
-            result.append(python_file)
-    return result
+    all_possibles = _all_possible_test_files_in(here, recursive)
+    test_extensions = [_ for _ in all_possibles if has_python_doctest_extension(_)]
+    test_texts = [_ for _ in all_possibles if has_python_source_extension(_) and has_doctests(_.text())]
+    return test_texts + test_extensions
 
 
 def _expand_stems(path_stems):
@@ -246,7 +245,7 @@ def _expand_stems(path_stems):
     if not result:
         path_stem = path_stems.pop()
         display_stem = path_stem.short_relative_path_from_here()
-        raise UserMessage('%s.test*, %s.py not found' % (display_stem, display_stem))
+        raise MissingFiles(f'{display_stem}.test*, {display_stem}.py not found')
     return result
 
 
@@ -297,9 +296,11 @@ def paths_to_doctests(strings, recursive):
     paths_to_files = _get_files_from_stems(strings, recursive)
     paths_to_positive_scripts = [p for p in paths_to_files if p.ext in positive_test_extensions()]
     for path_to_script in paths_to_files:
+        if path_to_script in paths_to_positive_scripts:
+            continue
         if path_to_script.ext:
             continue
-        if not _first_line_is_python_shebang(path_to_script.lines()):
+        if not _first_line_is_python_shebang(path_to_script.stripped_lines()):
             continue
         paths_to_positive_scripts.append(path_to_script)
     return _re_order_scripts(paths_to_positive_scripts)
@@ -314,7 +315,7 @@ def handle_command_line():
         '-r', '--recursive', action='store_true', help='Look in sub-directories')
     args = parser.parse_args()
     stems = args.stems if args.stems else [os.path.dirname(__file__)]
-    return stems, args.recursiive
+    return stems, args.recursive
 
 
 def main():

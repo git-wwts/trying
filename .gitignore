@@ -8,6 +8,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
+env/
 build/
 develop-eggs/
 dist/
@@ -51,6 +52,14 @@ coverage.xml
 *.mo
 *.pot
 
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+# Rope
+.ropeproject
+
 # Django stuff:
 *.log
 local_settings.py
@@ -65,6 +74,14 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+
+# Other filesystems
+.svn
+.DS_Store
+
+# Editors
+.*.swp
+*~
 
 # PyBuilder
 target/

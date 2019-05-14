@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 
-""" see: a human alternative to dir().
-
-    >>> from see import see
-    >>> help(see)
-    Help on function see in module see:
-    ...
+"""
+see
+A human alternative to dir().
 
 Copyright (c) 2009-2010 Liam Cooke
 http://inky.github.com/see/
@@ -51,7 +48,6 @@ import inspect
 
 
 from pprint import pformat
-from pprint import pprint
 
 __all__ = ['see']
 
@@ -67,7 +63,7 @@ __contributors__ = [
     'Steve Losh',
     'Adam Lloyd',
 ]
-__version__ = '0.5.3'
+__version__ = '1.0.1'
 __copyright__ = 'Copyright (c) 2009-2010 Liam Cooke'
 __license__ = 'BSD License'
 
@@ -175,7 +171,7 @@ def see(obj=_LOCALS, pattern=None, r=None, methods=None, attributes=None):
             actions.append(symbol)
 
     for attr in attrs:
-        if not attr.startswith('_'):
+        if attr.startswith('_'):
             continue
         try:
             prop = getattr(obj, attr)
@@ -231,7 +227,7 @@ def spread(thing, exclude=None):
             return pformat(thing)
         ids.append(id(thing))
         attributes_list = []
-        for k, v in thing.__dict__.iteritems():
+        for k, v in list(thing.__dict__.items()):
             if isinstance(v, type(sys)):
                 continue
             if callable(v):
@@ -248,22 +244,21 @@ def spread(thing, exclude=None):
             else:
                 value = spread_out_an_attribute(v, separator)
             lines = separator.join(value.splitlines())
-            attributes_list.append('%s : %s' % (k, lines))
+            attributes_list.append(f'{k} : {lines}')
         attributes_string = separator.join(attributes_list)
         ids.pop()
         class_name = thing.__class__.__name__
         klass = hasattr(thing, '__class__') and class_name or dir(thing)
-        return '''<%s%s%s\n%s>''' % (
-            klass, separator, attributes_string, separator[1:-2])
+        return f'''<{klass}{separator}{attributes_string}\n{separator[1:-2]}>'''
 
-    pprint(spread_out_the_attributes(thing, '\n\t'))
+    print(spread_out_the_attributes(thing, '\n\t'))
 
 
 PY_300 = sys.version_info >= (3, 0)
 PY_301 = sys.version_info >= (3, 0, 1)
 
 
-SYMBOLS = tuple(filter(lambda x: x[0], (
+SYMBOLS = tuple([x for x in (
     # callable
     ('__call__', '()'),
 
@@ -356,7 +351,7 @@ SYMBOLS = tuple(filter(lambda x: x[0], (
     (PY_300 and '__round__', 'round()'),
     ('__str__', 'str()'),
     (PY_300 and '__unicode__', 'unicode()'),
-)))
+) if x[0]])
 
 
 if __name__ == '__main__':

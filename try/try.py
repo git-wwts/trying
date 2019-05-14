@@ -1,14 +1,12 @@
-#! /usr/bin/env python
 """Script to handle running of doctests"""
 
-
-from __future__ import print_function
 
 import re
 import os
 import importlib
 import io
 import sys
+import importlib
 import doctest
 import getpass
 import socket
@@ -17,16 +15,13 @@ import datetime
 from pprint import pprint
 
 
-try:
-    from pysyte.paths import path
-except ImportError:
-    from dotsite.paths import path
+from pysyte.paths import path
 
+from trying import __version__
 from see import see, see_methods, see_attributes, spread
-import files_for_test
-import try_plugins
+from trying import files_for_test
+from trying import try_plugins
 
-__version__ = '0.5.3'
 
 class DoctestInterrupt(KeyboardInterrupt):
     """This exception is for better naming of the only thing to stop doctest"""
@@ -46,7 +41,7 @@ def run_command(command):
     """Run a command in the local shell (usually bash)"""
     status, output = subprocess.getstatusoutput(command)
     if status:
-        print('FAIL: %s:%s' % (status, output))
+        print(f'FAIL: {status}:{output}')
         return False
     print(output)
     return True
@@ -91,10 +86,10 @@ class TestBeingRun(object):
 
     def add_ext(self, base, ext):
         """Add a path for base.ext as an attribute to self"""
-        name = 'path_to_%s' % ext
+        name = f'path_to_{ext}'
         if hasattr(self, name):
             return
-        path_to_ext = path('%s.%s' % (base, ext))
+        path_to_ext = path(f'{base}.{ext}')
         if path_to_ext.isfile() or ext == 'fail':
             setattr(self, name, path_to_ext)
 
@@ -110,10 +105,10 @@ def parse_args():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     pa = parser.add_argument
     pa('stems', metavar='stems', type=str, nargs='*',
-       help='stems to be tested (e.g "try.py" or "try.*" or "try." or "try/"')
+       help='stems to be tested (e.g. "try.py" or "try.*" or "try." or "try/"')
     pa('-s', '--show', help='show files being tested', action='store_true')
-    pa('-V', '--verbose', help='Show more text', action='store_true')
-    pa('-v', '--version', help='Show version', action='store_true')
+    pa('-v', '--verbose', help='Show more text', action='store_true')
+    pa('-V', '--version', help='Show version', action='store_true')
     pa('-r', '--recursive', action='store_true',
        help='recurse into any sub-directories found',)
     pa('-a', '--all', action='store_true',
@@ -171,11 +166,15 @@ def make_module(path_to_python):
     try:
         return sys.modules[name]
     except KeyError:
-        spec = importlib.util.spec_from_file_location(name, path_to_python)
-        return importlib.util.module_from_spec(spec)
+        spec = importlib.util.spec_from_file_location(
+            name, str(path_to_python))
+        module = importlib.util.module_from_spec(spec)
+        if path_to_python.isfile():
+            spec.loader.exec_module(module)
+        return module
 
 
-def make_module_python2(path_to_python):
+def make_python2_module(path_to_python):
     try:
         return sys.modules[name]
     except KeyError:
@@ -192,8 +191,7 @@ def make_module_python2(path_to_python):
         # If any of the following calls raises an exception,
         # there's a problem we can't handle -- let the caller handle it.
         try:
-            x = imp.load_module(name, fp, pathname, description)
-            return x
+            return importlib.load_module(name, fp, pathname, description)
         finally:
             if fp:
                 fp.close()
@@ -201,7 +199,7 @@ def make_module_python2(path_to_python):
 
 def test_source(source_script):
     """Run tests in the given source"""
-    message = 'py %s;' % source_script
+    message = f'py {source_script};'
     module = make_module(source_script)
     failures, tests_run = doctest.testmod(
         module,
@@ -214,7 +212,7 @@ def test_source(source_script):
 
 def test_file(test_script):
     """Run tests in a doctest script"""
-    message = 'try %s;' % test_script
+    message = f'try {test_script};'
     failures, tests_run = doctest.testfile(
         test_script,
         optionflags=get_doctest_options(),
@@ -223,6 +221,7 @@ def test_file(test_script):
             'test': TestBeingRun(test_script),
             'sys': sys,
             'see': see,
+            'pp': pprint,
             'spread': spread,
             'see_methods': see_methods,
             'see_attributes': see_attributes,
@@ -265,7 +264,7 @@ def show_running_doctest(test_script):
             raise
         except SyntaxError as e:
             if args.directory_all or args.persist:
-                show_syntax(test_script, e)
+                show_exception(test_script, e)
                 return 0, 0, ''
             raise
     finally:
@@ -286,26 +285,26 @@ def show_time_taken(start, messages, message, tests_run):
     time_taken = end - start
     if time_taken.seconds:
         if time_taken.seconds > 1:
-            time_msg = 'in %d seconds' % time_taken.seconds
+            time_msg = f'in {time_taken.seconds} seconds'
         else:
             time_msg = 'quickly'
     else:
         time_msg = 'very quickly'
-    messages.append('%s %s tests passed %s' % (message, tests_run, time_msg))
+    messages.append(f'{message} {tests_run} tests passed {time_msg}')
     return end
 
 
-def show_syntax(test_script, interruption):
+def show_exception(test_script, exception):
     """Show the reason for an interuption on stderr"""
     print('Bye from ', test_script, file=sys.stderr)
     print('Because:', interruption, file=sys.stderr)
 
 
-def show_interruption(test_script, interruption):
-    """Show the reason for an interuption on stderr"""
-    print('^c ^C ^c ^C ^c ^C ^c ^C ^c ^C ^c ', file=sys.stderr)
-    print('Bye from ', test_script, file=sys.stderr)
-    print('Because:', interruption, file=sys.stderr)
+def show_interruption(*args):
+    """Shout ^C back to stderr"""
+    c_line = ('^c ^C ' * 4) + '\n'
+    print(c_line * 3, file=sys.stderr)
+    show_exception(*args)
 
 
 args = None
@@ -316,7 +315,7 @@ def test():
     global args
     args = parse_args()
     if args.version:
-        print(__version__)
+        print(f'{sys.argv[0]} version: {__version__}')
         return 0
     messages = ['']
     pwd = os.getcwd()
@@ -325,8 +324,10 @@ def test():
     failures_all = 0
     sys_paths.add('.')
     try:
-        for test_script in files_for_test.paths_to_doctests(
-                args.stems, args.recursive):
+        test_scripts = files_for_test.paths_to_doctests(
+            args.stems, args.recursive)
+        print(f'Found {len(test_scripts)} scripts in {pwd}')
+        for test_script in test_scripts:
             failures, tests_run, message = 0, 0, ''
             os.chdir(pwd)
             start = datetime.datetime.now()
@@ -348,27 +349,10 @@ def test():
                 if not args.directory_all:
                     return failures
     finally:
-        time_taken = end - start_all
-        messages.append('%s tests passed, %d failed, in %s seconds' %
-                        (run_all, failures_all, time_taken.seconds))
+        time_taken = (end - start_all).seconds
+        messages.append(
+            f'{run_all} tests passed, {failures_all} failed, in {time_taken} seconds')
         messages.append('')
     if failures_all or not args.quiet_on_success:
         print('\n'.join(messages))
     return failures_all
-
-
-def main():
-    """Run the program"""
-    try:
-        return test()
-    except files_for_test.UserMessage as e:
-        print(e, file=sys.stderr)
-    except KeyboardInterrupt as e:
-        print('^c ^C ^c ^C ^c ^C ^c ^C ^c ^C ^c ', file=sys.stderr)
-        print('Bye now', file=sys.stderr)
-        if str(e):
-            print(e, file=sys.stderr)
-
-
-if __name__ == '__main__':
-    sys.exit(main())
