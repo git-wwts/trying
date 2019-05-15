@@ -14,15 +14,13 @@ import subprocess
 import datetime
 from pprint import pprint
 
+import see
 from pysyte.paths import path
-from see import see
 
 from trying import __version__
 from trying import files_for_test
 from trying import try_plugins
-from trying.see import see_methods
-from trying.see import see_attributes
-from trying.see import spread
+from trying import seeing
 
 
 class DoctestInterrupt(KeyboardInterrupt):
@@ -222,13 +220,11 @@ def test_file(test_script):
         module_relative=False,
         globs={
             'test': TestBeingRun(test_script),
-            'sys': sys,
-            'see': see,
+            'see': see.see,
             'pp': pprint,
-            'spread': spread,
-            'see_methods': see_methods,
-            'see_attributes': see_attributes,
-            'makepath': path,
+            'spread': seeing.spread,
+            'see_methods': seeing.see_methods,
+            'see_attributes': seeing.see_attributes,
             'show': show,
             'bash': run_command,
             'DoctestInterrupt': DoctestInterrupt,

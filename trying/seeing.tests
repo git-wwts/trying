@@ -1,29 +1,30 @@
-The see module
-==============
+The seeing module
+=================
 
-    >>> from trying import see
+    >>> from trying import seeing
 
 Edge cases
 ----------
 
-    >>> see.spread(0)
+    >>> seeing.spread(0)
     0
-    >>> see.spread(1)
+    >>> seeing.spread(1)
     1
 
     >>> class No:
     ...     def __nonzero__(self):
     ...         return False
+
     >>> class Fred:
     ...     """"""
     ...     def __init__(self):
     ...          self.no = No()
     ...          self.none = None
     >>> fred = Fred()
-    >>> fred.fred = fred
-    >>> see.spread(fred)
+    >>> fred.fred = 1
+    >>> seeing.spread(fred)
     <Fred
         no : ...
         none : None
-        fred : ...
+        fred : 1
     >

@@ -1,0 +1,30 @@
+The seeing module
+=================
+
+    >>> from trying import seeing
+
+More imports for testing
+------------------------
+
+    >>> import sys
+
+seeing more
+--------
+
+Convenience method to avoid having to use an arg !
+    >>> seeing.see_attributes(sys, "api")
+      .api_version
+
+Another candidate for /r/badcode
+    >>> seeing.see_methods(sys, 'call')
+      .call_tracing()    .callstats()
+
+Spread out for display
+    >>> seeing.spread(sys)
+    <module
+    ...
+        path : ...
+        executable : ...
+        prefix : ...
+    ...
+    >

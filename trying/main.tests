@@ -7,6 +7,7 @@ Imports for tests
 -----------------
 
     >>> import os
+    >>> import sys
 
 Edge cases
 ----------
@@ -24,18 +25,15 @@ Edge cases
     >>> import see
     >>> assert see == main.make_module(test.path_to_py.parent / 'see.py')
     >>> show(see)
-    Help on module see:
-    ...
-        A human alternative to dir().
+    Help on package see:
     ...
 
     >>> del sys.modules['see']
-    >>> see = main.make_module(test.path_to_py.parent / 'see.py')
+    >>> see = main.make_module(test.path_to_py.parent / 'seeing.py')
     >>> show(see)
-    Help on module see:
+    Help on module seeing:
     ...
-        A human alternative to dir().
-    ...
+
     >>> mod = main.make_module(test.path_to_py.parent / 'not_a_file.py')
     >>> assert isinstance(mod, type(main))
     >>> assert mod.__name__, 'not_a_file'
