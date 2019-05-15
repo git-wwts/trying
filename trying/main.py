@@ -101,15 +101,14 @@ def parse_args():
     Destroy the option parser when finished
         (do not interfere with tests which use it)
     """
-    # Hello future me , please convert to argparse
     import argparse
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     pa = parser.add_argument
     pa('stems', metavar='stems', type=str, nargs='*',
        help='stems to be tested (e.g. "fred.py" or "fred.*" or "fred." or "fred/"')
     pa('-s', '--show', help='show files being tested', action='store_true')
-    pa('-v', '--verbose', help='Show more text', action='store_true')
-    pa('-V', '--version', help='Show version', action='store_true')
+    pa('-V', '--verbose', help='Show more text', action='store_true')
+    pa('-v', '--version', help='Show version', action='store_true')
     pa('-r', '--recursive', action='store_true',
        help='recurse into any sub-directories found',)
     pa('-a', '--all', action='store_true',
@@ -315,7 +314,7 @@ def test():
     args = parse_args()
     if args.version:
         print(f'{sys.argv[0]} version: {__version__}')
-        return 0
+        sys.exit(0)
     messages = ['']
     pwd = os.getcwd()
     end = start_all = datetime.datetime.now()

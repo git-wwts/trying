@@ -4,6 +4,7 @@
 import argparse
 import sys
 
+from trying import __version__
 from trying import files_for_test
 
 
@@ -14,7 +15,11 @@ def parse_args():
         'stems', type=str, nargs='*', help='filename stems')
     parser.add_argument(
         '-r', '--recursive', action='store_true', help='Look in sub-directories')
+    parser.add_argument('-v', '--version', help='Show version')
     args = parser.parse_args()
+    if args.version:
+        print(f'{sys.argv[0]} version: {__version__}')
+        sys.exit(0)
     stems = args.stems if args.stems else [os.path.dirname(__file__)]
     return stems, args.recursive
 
