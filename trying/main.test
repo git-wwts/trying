@@ -1,8 +1,8 @@
-The trying module
-=================
+The main module
+===============
 
-    >>> from trying import trying
-    >>> assert 'running of doctests' in trying.__doc__
+    >>> from trying import main
+    >>> assert 'running of doctests' in main.__doc__
 
 Imports for tests
 -----------------
@@ -10,10 +10,10 @@ Imports for tests
     >>> import os
     >>> import getpass
 
-Trying trying
--------------
+Trying try
+----------
 
-Following tests will only work when run under trying itself
+Following tests will only work when run under try itself
     because, e.g. it provides a global called test
     >>> try:
     ...     assert test
@@ -22,14 +22,14 @@ Following tests will only work when run under trying itself
 
 Running tests with try provides an instance called test
     which has some interesting attributes
-    e.g. this file is called try.tests
-    >>> assert test.path.name == 'trying.test'
+    e.g. this file is called main.tests
+    >>> assert test.path.name == 'main.test'
 
 If that went well we have a hidden variable called test
     which is an object from the __main__ module
     and has some attributes
 
-    >>> assert test.path_to_py.name == 'trying.py'
+    >>> assert test.path_to_py.name == 'main.py'
 
     >>> assert test.here == os.getcwd()
 
@@ -48,34 +48,3 @@ And we can run bash commands
 We know the user who is running the tests
     >>> assert test.user == '%s@%s' % (getpass.getuser(), test.host)
 
-Edge cases
-----------
-
-    >>> assert not bash('/bin/ls /no_such_file')
-    FAIL: ...No such file or directory
-
-    >>> show(os)
-    Help on module os:
-    ...
-
-    >>> show(0)
-    0
-
-    >>> import see
-    >>> assert see == trying.make_module(test.path_to_py.parent / 'see.py')
-    >>> show(see)
-    Help on module see:
-    ...
-        /.../testing/see.py
-    ...
-
-    >>> del sys.modules['see']
-    >>> see = trying.make_module(test.path_to_py.parent / 'see.py')
-    >>> show(see)
-    Help on module see:
-    ...
-        /.../testing/see.py
-    ...
-    >>> mod = trying.make_module(test.path_to_py.parent / 'not_a_file.py')
-    >>> assert isinstance(mod, type(trying))
-    >>> assert mod.__name__, 'not_a_file'
