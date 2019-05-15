@@ -70,7 +70,7 @@ Edge cases
 
     >>> import sys
     >>> sys.stderr = sys.stdout
-    >>> sys.argv = ['try.py', 'not_a_file']
+    >>> sys.argv = ['trying.py', 'not_a_file']
     >>> fft.main() == 1
     not_a_file.test*, not_a_file.py not found
     True

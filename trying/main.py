@@ -105,7 +105,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     pa = parser.add_argument
     pa('stems', metavar='stems', type=str, nargs='*',
-       help='stems to be tested (e.g. "try.py" or "try.*" or "try." or "try/"')
+       help='stems to be tested (e.g. "fred.py" or "fred.*" or "fred." or "fred/"')
     pa('-s', '--show', help='show files being tested', action='store_true')
     pa('-v', '--verbose', help='Show more text', action='store_true')
     pa('-V', '--version', help='Show version', action='store_true')

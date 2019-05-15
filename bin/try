@@ -5,8 +5,8 @@ import sys
 import importlib
 
 from pysyte import args as arguments
-from trying import trying
 from trying import files_for_test
+from trying import main as trying
 
 
 def main():

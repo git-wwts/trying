@@ -2,7 +2,7 @@ The try_plugins module
 ======================
 
     >>> from trying import try_plugins
-    >>> assert try_plugins.__doc__ == 'This module holds plugins for try.py'
+    >>> assert try_plugins.__doc__ == 'This module holds plugins for try'
 
 Plugin methods
 --------------

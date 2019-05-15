@@ -1,4 +1,4 @@
-"""This module holds plugins for try.py"""
+"""This module holds plugins for try"""
 
 
 

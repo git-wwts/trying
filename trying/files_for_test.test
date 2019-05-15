@@ -54,12 +54,12 @@ First stem to test with is the only file we're sure of:
     the name of the module we are actually testing
     >>> test_file_stem, ext = os.path.splitext(files_for_test.__file__)
 
-And we think there are also some files in same directory called "trying.*"
+And we think there are also some files in same directory called "main.*"
     >>> test_file_name = os.path.basename(test_file_stem)
-    >>> try_stem = test_file_stem.replace(test_file_name, 'trying')
+    >>> main_stem = test_file_stem.replace(test_file_name, 'main')
 
 Test with those stems
-    >>> stems = [test_file_stem, try_stem]
+    >>> stems = [test_file_stem, main_stem]
     >>> paths_to_test_scripts = files_for_test.paths_to_doctests(stems, False)
 
 Only testing the names of those scripts
@@ -67,4 +67,4 @@ Only testing the names of those scripts
 
 We expect to find files with the standard test extensions
     >>> assert 'files_for_test.test' in test_script_names
-    >>> assert 'trying.py' in test_script_names
+    >>> assert 'main.py' in test_script_names
