@@ -10,8 +10,6 @@ We also allow for python scripts which have no extension
 
 import os
 import re
-import sys
-import argparse
 
 
 try:
@@ -304,31 +302,3 @@ def paths_to_doctests(strings, recursive):
             continue
         paths_to_positive_scripts.append(path_to_script)
     return _re_order_scripts(paths_to_positive_scripts)
-
-
-def handle_command_line():
-    """Find options and arguments on the command line"""
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument(
-        'stems', type=str, nargs='*', help='filename stems')
-    parser.add_argument(
-        '-r', '--recursive', action='store_true', help='Look in sub-directories')
-    args = parser.parse_args()
-    stems = args.stems if args.stems else [os.path.dirname(__file__)]
-    return stems, args.recursive
-
-
-def main():
-    """Run the progam"""
-    stems, recursive = handle_command_line()
-    try:
-        scripts = paths_to_doctests(stems, recursive)
-    except UserMessage as e:
-        print(e, file=sys.stderr)
-        return 1
-    print('\n'.join(scripts))
-    return 0
-
-
-if __name__ == '__main__':
-    sys.exit(main())

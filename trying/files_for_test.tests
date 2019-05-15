@@ -68,14 +68,6 @@ Edge cases
     >>> assert not fft._first_line_is_python_shebang(['print 0', '#! /usr/local/python'])
     >>> assert not fft._first_line_is_python_shebang([])
 
-    >>> import sys
-    >>> sys.stderr = sys.stdout
-    >>> sys.argv = ['trying.py', 'not_a_file']
-    >>> fft.main() == 1
-    not_a_file.test*, not_a_file.py not found
-    True
-    >>> sys.stderr = sys.__stderr__
-
     >>> assert not fft.has_doctests('not space    >>> print True')
     >>> assert fft.has_doctests('not space\n    >>> print True')
     >>> assert fft.has_doctests('not space\n\t>>> print True')

@@ -19,7 +19,6 @@ def main():
         sys.stderr.write(str(e))
     except KeyboardInterrupt as e:
         sys.stderr.write('^c ^C ^c ^C ^c ^C ^c ^C ^c ^C ^c\n')
-        sys.stderr.write('Bye now\n')
         sys.stderr.write(str(e))
 
 

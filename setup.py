@@ -49,6 +49,6 @@ setup(
         'Operating System :: OS Independent',
         'Topic :: Software Development :: Build Tools',
     ],
-    install_requires=['pysyte',],
-    scripts=['bin/try',],
+    install_requires=['pysyte', 'see'],
+    scripts=['bin/try', 'bin/try_files'],
 )

@@ -14,13 +14,12 @@ import subprocess
 import datetime
 from pprint import pprint
 
-
 from pysyte.paths import path
+from see import see
 
 from trying import __version__
 from trying import files_for_test
 from trying import try_plugins
-from trying.see import see
 from trying.see import see_methods
 from trying.see import see_attributes
 from trying.see import spread
