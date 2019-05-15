@@ -78,6 +78,7 @@ class TestBeingRun(object):
         self.user = '@'.join((self.username, self.host))
         self.path = self.here.relpathto(that)
         base, _ext = self.path.splitext()
+        self.stem = base
         [self.add_ext(base, _) for _ in {_ext[1:], 'py', 'test', 'tests', 'fail'}]
 
     def __repr__(self):

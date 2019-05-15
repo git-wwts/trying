@@ -52,7 +52,7 @@ To test a bit more extensively we'll specify some known stems
 
 First stem to test with is the only file we're sure of:
     the name of the module we are actually testing
-    >>> test_file_stem, ext = os.path.splitext(files_for_test.__file__)
+    >>> test_file_stem = test.stem
 
 And we think there are also some files in same directory called "main.*"
     >>> test_file_name = os.path.basename(test_file_stem)
