@@ -1,10 +1,14 @@
-# try3
+# trying
 
-An extension and upgrade of an old [try command](https://github.com/jalanb/jab/blob/master/src/python/testing/try.py), which specialised in handling doctests, in \*.py, \*.test and \*.tests
+Keep on trying!
+
+`trying` is a test runner specialised for Python doctests
+
+It will find and run any doctests in `*.py`, `*.test`, `*.tests`
+
 
 # Goals
 
 * Integrate with unix (e.g. man pages).
 * Integrate with py.test, nose, ...
 * Pop up debugger at the right times
-* Rewrite as python 3
