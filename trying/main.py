@@ -18,9 +18,12 @@ from pprint import pprint
 from pysyte.paths import path
 
 from trying import __version__
-from see import see, see_methods, see_attributes, spread
 from trying import files_for_test
 from trying import try_plugins
+from trying.see import see
+from trying.see import see_methods
+from trying.see import see_attributes
+from trying.see import spread
 
 
 class DoctestInterrupt(KeyboardInterrupt):
