@@ -15,7 +15,7 @@ import datetime
 from pprint import pprint
 
 import see
-from pysyte.paths import path
+from pysyte.types.paths import path
 
 from trying import __version__
 from trying import files_for_test
@@ -307,7 +307,7 @@ def show_interruption(*args):
 
 args = None
 
-def test():
+def main():
     """Run all tests"""
     sys_paths = SysPathHandler()
     global args

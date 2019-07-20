@@ -4,23 +4,19 @@
 import sys
 import importlib
 
-from pysyte import args as arguments
+from pysyte.cli.main import run
 from trying import files_for_test
 from trying import main as trying
 
 
 def main():
-    """Run the program"""
-
+    """Run the tests"""
     try:
-        fails = trying.test()
+        fails = trying.main()
         return not fails
     except files_for_test.UserMessage as e:
-        sys.stderr.write(str(e))
-    except KeyboardInterrupt as e:
-        sys.stderr.write('^c ^C ^c ^C ^c ^C ^c ^C ^c ^C ^c\n')
         sys.stderr.write(str(e))
 
 
 if __name__ == '__main__':
-    sys.exit(arguments.call_main(main))
+    run(main)

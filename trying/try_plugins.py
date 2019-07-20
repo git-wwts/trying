@@ -1,4 +1,4 @@
-"""This module holds plugins for try"""
+"""This module holds plugins for trying"""
 
 
 
