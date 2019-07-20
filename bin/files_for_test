@@ -1,0 +1,21 @@
+#! /usr/bin/env python3
+"""SHow files included in tests"""
+
+from pysyte.cli.main import run
+
+from trying.files_for_test import UserMessage
+
+def main():
+    """Run the program"""
+    stems, recursive = handle_command_line()
+    try:
+        scripts = paths_to_doctests(stems, recursive)
+    except UserMessage as e:
+        print(e, file=sys.stderr)
+        return 1
+    print('\n'.join(scripts))
+    return 0
+
+
+if __name__ == '__main__':
+    run(main)

@@ -5,6 +5,7 @@ import sys
 import importlib
 
 from pysyte.cli.main import run
+
 from trying import files_for_test
 from trying import main as trying
 
