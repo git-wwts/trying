@@ -3,6 +3,11 @@ The files_for_test module
 
     >>> from trying import files_for_test as fft
 
+Other imports
+-------------
+
+    >>> from pysyte.types.paths import path
+
 Handle files
 ------------
 
